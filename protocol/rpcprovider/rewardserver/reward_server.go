@@ -11,14 +11,14 @@ import (
 
 	terderminttypes "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/lavanet/lava/protocol/common"
-	"github.com/lavanet/lava/protocol/lavasession"
-	"github.com/lavanet/lava/protocol/metrics"
-	"github.com/lavanet/lava/utils"
-	"github.com/lavanet/lava/utils/lavaslices"
-	"github.com/lavanet/lava/utils/rand"
-	"github.com/lavanet/lava/utils/sigs"
-	pairingtypes "github.com/lavanet/lava/x/pairing/types"
+	"github.com/lavanet/lava/v2/protocol/common"
+	"github.com/lavanet/lava/v2/protocol/lavasession"
+	"github.com/lavanet/lava/v2/protocol/metrics"
+	"github.com/lavanet/lava/v2/utils"
+	"github.com/lavanet/lava/v2/utils/lavaslices"
+	"github.com/lavanet/lava/v2/utils/rand"
+	"github.com/lavanet/lava/v2/utils/sigs"
+	pairingtypes "github.com/lavanet/lava/v2/x/pairing/types"
 )
 
 const (
@@ -34,7 +34,6 @@ const (
 	MaxPaymentRequestsRetiresForSession = 3
 	RewardServerMaxRelayRetires         = 3
 	splitRewardsIntoChunksSize          = 500 // if the reward array is larger than this it will split it into chunks and send multiple requests instead of a huge one
-	debug                               = false
 )
 
 type PaymentRequest struct {
@@ -304,9 +303,15 @@ func (rws *RewardServer) sendRewardsClaim(ctx context.Context, epoch uint64) err
 						rws.addExpectedPayment(expectedPay)
 						rws.updateCUServiced(relay.CuSum)
 						specs[relay.SpecId] = struct{}{}
-						if debug {
-							utils.LavaFormatDebug("Adding Payment for Spec", utils.LogAttr("spec", relay.SpecId), utils.LogAttr("Cu Sum", relay.CuSum), utils.LogAttr("epoch", relay.Epoch), utils.LogAttr("consumerAddr", consumerAddr), utils.LogAttr("number_of_relays_served", relay.RelayNum), utils.LogAttr("sessionId", relay.SessionId))
-						}
+
+						utils.LavaFormatTrace("Adding Payment for Spec",
+							utils.LogAttr("spec", relay.SpecId),
+							utils.LogAttr("Cu Sum", relay.CuSum),
+							utils.LogAttr("epoch", relay.Epoch),
+							utils.LogAttr("consumerAddr", consumerAddr),
+							utils.LogAttr("number_of_relays_served", relay.RelayNum),
+							utils.LogAttr("sessionId", relay.SessionId),
+						)
 					}
 				} else { // just add the specs
 					for _, relay := range failedRewardRequestsToRetry {

@@ -7,14 +7,14 @@ import (
 
 	cosmosmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/lavanet/lava/utils"
-	"github.com/lavanet/lava/utils/lavaslices"
-	epochstoragetypes "github.com/lavanet/lava/x/epochstorage/types"
-	pairingfilters "github.com/lavanet/lava/x/pairing/keeper/filters"
-	pairingscores "github.com/lavanet/lava/x/pairing/keeper/scores"
-	planstypes "github.com/lavanet/lava/x/plans/types"
-	projectstypes "github.com/lavanet/lava/x/projects/types"
-	spectypes "github.com/lavanet/lava/x/spec/types"
+	"github.com/lavanet/lava/v2/utils"
+	"github.com/lavanet/lava/v2/utils/lavaslices"
+	epochstoragetypes "github.com/lavanet/lava/v2/x/epochstorage/types"
+	pairingfilters "github.com/lavanet/lava/v2/x/pairing/keeper/filters"
+	pairingscores "github.com/lavanet/lava/v2/x/pairing/keeper/scores"
+	planstypes "github.com/lavanet/lava/v2/x/plans/types"
+	projectstypes "github.com/lavanet/lava/v2/x/projects/types"
+	spectypes "github.com/lavanet/lava/v2/x/spec/types"
 )
 
 func (k Keeper) VerifyPairingData(ctx sdk.Context, chainID string, block uint64) (epoch uint64, providersType spectypes.Spec_ProvidersTypes, errorRet error) {
@@ -121,10 +121,11 @@ func (k Keeper) getPairingForClient(ctx sdk.Context, chainID string, block uint6
 	if err != nil {
 		return nil, 0, nil, fmt.Errorf("invalid pairing data: %s", err)
 	}
-	stakeEntries, found, epochHash := k.epochStorageKeeper.GetEpochStakeEntries(ctx, epoch, chainID)
-	if !found {
+	stakeEntries := k.epochStorageKeeper.GetAllStakeEntriesForEpochChainId(ctx, epoch, chainID)
+	if len(stakeEntries) == 0 {
 		return nil, 0, nil, fmt.Errorf("did not find providers for pairing: epoch:%d, chainID: %s", block, chainID)
 	}
+	epochHash := k.epochStorageKeeper.GetEpochHash(ctx, epoch)
 
 	if providersType == spectypes.Spec_static {
 		frozenFilter := pairingfilters.FrozenProvidersFilter{}

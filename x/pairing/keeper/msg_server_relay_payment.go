@@ -8,13 +8,13 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/lavanet/lava/utils"
-	commontypes "github.com/lavanet/lava/utils/common/types"
-	"github.com/lavanet/lava/utils/sigs"
-	epochstoragetypes "github.com/lavanet/lava/x/epochstorage/types"
-	"github.com/lavanet/lava/x/pairing/types"
-	projectstypes "github.com/lavanet/lava/x/projects/types"
-	subscriptiontypes "github.com/lavanet/lava/x/subscription/types"
+	"github.com/lavanet/lava/v2/utils"
+	commontypes "github.com/lavanet/lava/v2/utils/common/types"
+	"github.com/lavanet/lava/v2/utils/sigs"
+	epochstoragetypes "github.com/lavanet/lava/v2/x/epochstorage/types"
+	"github.com/lavanet/lava/v2/x/pairing/types"
+	projectstypes "github.com/lavanet/lava/v2/x/projects/types"
+	subscriptiontypes "github.com/lavanet/lava/v2/x/subscription/types"
 )
 
 type BadgeData struct {
@@ -332,13 +332,13 @@ func (k msgServer) RelayPayment(goCtx context.Context, msg *types.MsgRelayPaymen
 }
 
 func (k msgServer) setStakeEntryBlockReport(ctx sdk.Context, providerAddr string, chainID string, latestBlock uint64) {
-	stakeEntry, found := k.epochStorageKeeper.GetStakeEntryByAddressCurrent(ctx, chainID, providerAddr)
+	stakeEntry, found := k.epochStorageKeeper.GetStakeEntryCurrent(ctx, chainID, providerAddr)
 	if found {
 		stakeEntry.BlockReport = &epochstoragetypes.BlockReport{
 			Epoch:       k.epochStorageKeeper.GetEpochStart(ctx),
 			LatestBlock: latestBlock,
 		}
-		k.epochStorageKeeper.ModifyStakeEntryCurrent(ctx, chainID, stakeEntry)
+		k.epochStorageKeeper.SetStakeEntryCurrent(ctx, stakeEntry)
 	}
 }
 
